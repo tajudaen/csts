@@ -25,6 +25,11 @@ const config = {
 		port: process.env.MONGO_PORT,
 		db: process.env.MONGO_DB_NAME,
 		collections: {
+			user: "user",
+			admin: "admin",
+			ticket: "ticket",
+			department: "department",
+			support: "supportagents",
 		},
 	},
 	mongodb_test: process.env.MONGO_DB_TEST,
