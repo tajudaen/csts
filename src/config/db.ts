@@ -3,7 +3,7 @@ import { config } from "./config";
 import { logger } from "./logger";
 
 
-const URI = config.environment === "test" ? config.mongodb.test_uri : config.mongodb.uri;
+const URI = config.environment === "test" ? config.mongodb.testUri : config.mongodb.uri;
 
 export const connectDB = async () => {
 	try {

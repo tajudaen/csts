@@ -1,38 +1,57 @@
-const dotenv = require("dotenv");
-
+import dotenv from "dotenv";
 dotenv.config();
 
-const appName: string = "customer support ticketing system";
+interface IEnv {
+	appName: string;
+	port: number;
+	mongodb: IMongodb;
+	environment: string;
+	jwt: IJWT;
+	salt: number;
+}
 
-const config = {
-	app_name: appName,
-	api_server: {
-		port: process.env.PORT,
-	},
-	JWT: {
-		SECRETKEY: process.env.SECRETKEY,
-	},
-	logging: {
-		shouldLogToFile: process.env.ENABLE_FILE_LOGGING,
-		file: process.env.LOG_PATH,
-		level: process.env.LOG_LEVEL || "warn",
-		console: process.env.LOG_ENABLE_CONSOLE || true,
+interface IMongodb {
+	uri: string;
+	testUri: string;
+	collections: ICollections;
+}
+
+interface ICollections {
+	user: string;
+	admin: string;
+	ticket: string;
+	category: string;
+}
+
+interface IJWT {
+	SECRETKEY: string;
+	expires: number;
+	issuer: string;
+	alg: any;
+}
+
+
+const config: IEnv = {
+	appName: "customer support ticketing system",
+	environment: process.env.NODE_ENV || "development",
+	port: Number(process.env.PORT),
+	jwt: {
+		SECRETKEY: process.env.JWT_SECRET_KEY!,
+		expires: Number(process.env.JWT_EXPIRY)!,
+		issuer: process.env.ISSUER!,
+		alg: process.env.JWT_ALG!,
 	},
 	mongodb: {
-		host: process.env.MONGO_HOST,
-		username: process.env.MONGO_USER,
-		password: process.env.MONGO_PASSWORD,
-		port: process.env.MONGO_PORT,
-		db: process.env.MONGO_DB_NAME,
+		uri: process.env.MONGO_DB_URI!,
+		testUri: process.env.MONGO_DB_TEST!,
 		collections: {
 			user: "user",
 			admin: "admin",
 			ticket: "ticket",
-			department: "department",
-			support: "supportagents",
+			category: "category",
 		},
 	},
-	mongodb_test: process.env.MONGO_DB_TEST,
+	salt: Number(process.env.SALT_ROUND)!,
 };
 
 export { config };

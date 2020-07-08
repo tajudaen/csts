@@ -5,7 +5,8 @@
  */
 import { config } from "./config";
 import { createLogger, format, transports } from "winston";
-require('winston-daily-rotate-file');
+import  "winston-daily-rotate-file";
+
 
 // Import Functions
 const { File, Console } = transports;
@@ -17,7 +18,7 @@ const wintstonLogger = createLogger({
 
 /**
  * For production write to all logs with level `info` and below
- * to `combined.log. Write all logs error (and below) to `error.log`.
+ * to `info.log. Write all logs error (and below) to `error.log`.
  * For development, print to the console.
  */
 if (config.environment === "production") {
