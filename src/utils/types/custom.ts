@@ -1,7 +1,7 @@
 import { Request } from "express";
 export interface IRequestAdmin extends Request {
 	user?: {
-		id: string;
+		_id: string;
 		role?: string;
 	};
 }

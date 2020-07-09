@@ -13,24 +13,11 @@ const AdminService = {
 		}
 	},
 
-	async getRole(id: string) {
+	async getAdminIdAndRole(id: string) {
 		try {
-			const admin: { role: string } | null = await AdminModel.findOne({
+			const admin: { _id: string, role: string } | null = await AdminModel.findOne({
 				adminId: id,
-			});
-			console.log(admin);
-			return admin;
-		} catch (error) {
-			throw error;
-		}
-	},
-
-	async getId(id: string) {
-		try {
-			const admin: { _id: string } | null = await AdminModel.findOne({
-				adminId: id,
-			});
-			console.log(admin);
+			}, '_id role');
 			return admin;
 		} catch (error) {
 			throw error;

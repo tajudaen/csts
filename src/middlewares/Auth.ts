@@ -42,7 +42,7 @@ export const authToken = (req: any, res: Response, next: NextFunction) => {
    */
 export const authAdmin = async (req: any, res: Response, next: NextFunction) => {
 	try {
-		req.userId = await AdminService.getId(req.id);
+		req.user = await AdminService.getAdminIdAndRole(req.id);
 		next();
 	} catch (err) {
 		const errMessage = "Invalid token. Please login";
@@ -59,10 +59,8 @@ export const authAdmin = async (req: any, res: Response, next: NextFunction) => 
    * @returns {void|Object} object
    */
 export const adminAccess = async (req: any, res: Response, next: NextFunction) => {
-    try {
-		console.log(req.userId);
-        const admin = await AdminService.getRole(req.userId);
-		if (admin?.role !== "admin") {
+	try {
+		if (req.user.role !== "admin") {
 			const errMessage = "Unauthorized action";
 			return http_responder.errorResponse(res, errMessage, httpCodes.FORBIDDEN);
 		}
