@@ -111,6 +111,14 @@ export async function getAllTickets(req: any, res: Response) {
 	}
 }
 
+/**
+  * updateTicket
+  * @desc A user should be able to update(comment) a ticket created by the user
+  * Route: PUT: '/api/v1/tickets/:id'
+  * @param {Object} req request object
+  * @param {Object} res response object
+  * @returns {void|Object} object
+  */
 export async function updateTicket(req: IRequestUser, res: Response) {
 	try {
 		const userId = req.user?._id;
