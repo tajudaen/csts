@@ -25,6 +25,18 @@ const AdminService = {
 		}
 	},
 
+	async getId(id: string) {
+		try {
+			const admin: { _id: string } | null = await AdminModel.findOne({
+				adminId: id,
+			});
+			console.log(admin);
+			return admin;
+		} catch (error) {
+			throw error;
+		}
+	},
+
 	async getAdminByEmail(email: string) {
 		try {
 			const admin = await AdminModel.findOne({
