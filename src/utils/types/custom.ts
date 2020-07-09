@@ -8,16 +8,15 @@ export interface IRequestAdmin extends Request {
 
 export interface IRequestUser extends Request {
 	user?: {
-		id: string;
+		_id: string;
 	};
 }
 
 export interface ITicket {
 	ticketId: string;
 	subject: string;
-	request: string;
-	categoryId: string;
-	userId: string;
+	content: string;
+	userId?: string;
 }
 
 export interface IAdmin {

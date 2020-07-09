@@ -7,46 +7,46 @@ export interface AdminDoc extends Document {
 	name: string;
 	email: string;
 	role: string;
-	adminId: string;
 	password: string;
+	isDeleted: boolean;
 }
 
-const adminSchema = new Schema({
-	name: {
-		type: String,
-		required: true,
-		minlength: 5,
-		trim: true,
+const adminSchema = new Schema(
+	{
+		name: {
+			type: String,
+			required: true,
+			minlength: 5,
+			trim: true,
+		},
+		email: {
+			type: String,
+			required: true,
+			minlength: 5,
+			trim: true,
+			unique: true,
+		},
+		password: {
+			type: String,
+			require: true,
+			minlength: 6,
+			trim: true,
+		},
+		role: {
+			type: String,
+			require: true,
+			enum: ["admin", "agent"],
+			default: "admin",
+		},
+		isDeleted: {
+			type: Boolean,
+			default: false,
+		},
 	},
-	email: {
-		type: String,
-		required: true,
-		minlength: 5,
-		trim: true,
-		unique: true,
-	},
-	password: {
-		type: String,
-		require: true,
-		minlength: 6,
-		trim: true,
-	},
-	adminId: {
-		type: String,
-		required: true,
-		unique: true,
-	},
-	role: {
-		type: String,
-		require: true,
-		enum: ["admin", "agent"],
-		default: "admin",
-	},
-	isDeleted: {
-		type: Boolean,
-		default: false,
-	},
-});
+	{
+		timestamps: true,
+	}
+);
 
 adminSchema.methods.toJSON = function () {
 	const obj = this.toObject();
@@ -67,7 +67,7 @@ adminSchema.pre("save", async function (next) {
 
 adminSchema.methods.generateAuthToken = function () {
 	const tokenData = {
-		id: this.adminId,
+		id: this._id,
 	};
 	const token = jwt.sign(tokenData, config.jwt.SECRETKEY, {
 		subject: config.appName,

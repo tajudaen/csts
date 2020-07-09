@@ -16,7 +16,8 @@ const AdminService = {
 	async getAdminIdAndRole(id: string) {
 		try {
 			const admin: { _id: string, role: string } | null = await AdminModel.findOne({
-				adminId: id,
+				_id: id,
+				isDeleted: false
 			}, '_id role');
 			return admin;
 		} catch (error) {

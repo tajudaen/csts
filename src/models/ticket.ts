@@ -4,12 +4,11 @@ import { config } from "../config/config";
 export interface TicketDoc extends Document {
 	ticketId: string;
 	subject: string;
-	request: string;
-	categoryId: string;
-	userId: string;
-	agentId?: string;
+	content: string;
+	userId: any;
 	status: string;
-	meta?: object;
+	isOpenForComment: boolean;
+	meta: any;
 	isDeleted: boolean;
 	createdAt: Date;
 	updatedAt: Date;
@@ -22,7 +21,7 @@ const ticketSchema = new Schema(
 			required: true,
 			minlength: 1,
 		},
-		request: {
+		content: {
 			type: String,
 			required: true,
 			minlength: 1,
@@ -32,24 +31,16 @@ const ticketSchema = new Schema(
 			required: true,
 			unique: true,
 		},
-		categoryId: {
-			type: Schema.Types.ObjectId,
-			ref: "departments",
-		},
 		userId: {
 			type: Schema.Types.ObjectId,
 			ref: "users",
 			required: true,
 		},
-		agentId: {
-			type: Schema.Types.ObjectId,
-			ref: "supportagents",
-		},
 		status: {
 			type: String,
 			required: true,
 			default: "pending",
-			enum: ["pending", "open", "solved"],
+			enum: ["pending", "open", "closed"],
 		},
 		meta: {
 			comments: [
@@ -66,10 +57,10 @@ const ticketSchema = new Schema(
 					},
 				},
 			],
-			isFollowUp: {
-				type: Boolean,
-				default: false,
-			},
+		},
+		isOpenForComment: {
+			type: Boolean,
+			default: false,
 		},
 		isDeleted: {
 			type: Boolean,
@@ -81,4 +72,10 @@ const ticketSchema = new Schema(
 	}
 );
 
-export const ticketModel: Model<TicketDoc> = model<TicketDoc>(config.mongodb.collections.ticket,ticketSchema);
+ticketSchema.methods.toJSON = function () {
+	const obj = this.toObject();
+	delete obj._id;
+	return obj;
+};
+
+export const TicketModel: Model<TicketDoc> = model<TicketDoc>(config.mongodb.collections.ticket,ticketSchema);

@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Route
-app.use('/v1', BaseRouter);
+app.use('/api/v1', BaseRouter);
 
 app.get("/", (req, res) => {
 	return http_responder.successResponse(
