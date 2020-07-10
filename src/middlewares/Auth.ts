@@ -43,7 +43,12 @@ export const authToken = (req: any, res: Response, next: NextFunction) => {
    */
 export const authAdmin = async (req: any, res: Response, next: NextFunction) => {
 	try {
-		req.user = await AdminService.getAdminIdAndRole(req.id);
+		const admin = await AdminService.getAdminIdAndRole(req.id);
+		if (!admin) {
+			const errMessage = "Invalid token. Please login";
+			return http_responder.errorResponse(res, errMessage, httpCodes.UNAUTHORIZED);
+		}
+		req.user = admin;
 		next();
 	} catch (err) {
 		const errMessage = "Invalid token. Please login";
@@ -82,7 +87,12 @@ export const adminAccess = async (req: any, res: Response, next: NextFunction) =
   */
 export const authUser = async (req: any, res: Response, next: NextFunction) => {
 	try {
-		req.user = await UserService.checkIfUserExist(req.id);
+		const user = await UserService.checkIfUserExist(req.id);
+		if (!user) {
+			const errMessage = "Invalid token. Please login";
+			return http_responder.errorResponse(res, errMessage, httpCodes.UNAUTHORIZED);
+		}
+		req.user = user;
 		next();
 	} catch (err) {
 		const errMessage = "Invalid token. Please login";

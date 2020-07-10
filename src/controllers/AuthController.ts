@@ -69,7 +69,6 @@ export async function loginUser(req: IRequestUser, res: Response) {
         const email = req.body.email.toLowerCase();
 
         const user: any = await UserService.getUserByEmail(email);
-        console.log(user);
         if (!user) {
             const errMessage = 'Invalid login credentials';
             return http_responder.errorResponse(res, errMessage, httpCodes.NOT_FOUND);

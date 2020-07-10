@@ -17,7 +17,13 @@ const http_responder = {
 			message,
 			data,
 		});
-  },
+	},
+  
+	async downloadResponse(res: Response, data: any, filename: string = 'demo.csv', statusCode: number = OK) {
+	  	res.setHeader("Content-disposition", `attachment; filename=${filename}`);
+		res.set("Content-Type", "text/csv");
+    	return res.status(statusCode).end(data);
+  	},
 }
 
 export { http_responder };

@@ -1,12 +1,13 @@
 import { Response } from "express";
-import { IRequestUser, ITicket } from "../utils/types/custom";
+import { IRequestUser, ITicket, IRequestAdmin } from "../utils/types/custom";
 import TicketService from '../services/TicketService';
-import httpCodes from "http-status-codes";
+import httpCodes, { NOT_FOUND } from "http-status-codes";
 import { logger } from "../config/logger";
 import { http_responder } from '../utils/http_response';
 import { CreateTicketSchema, UpdateTicketCommentSchema } from "../utils/validations/ticket";
 import Utils from "../utils/utils";
 import { uuid } from 'uuidv4';
+const { parse } = require('json2csv');
 
 /**
   * newTicket
@@ -77,14 +78,14 @@ export async function getTicket(req: IRequestUser, res: Response) {
 }
 
 /**
-  * getAllTickets
+  * getUserTickets
   * @desc A user should get all the tickets created by the user
   * Route: GET: '/api/v1/tickets/history'
   * @param {Object} req request object
   * @param {Object} res response object
   * @returns {void|Object} object
   */
-export async function getAllTickets(req: any, res: Response) {
+export async function getUserTickets(req: any, res: Response) {
 	try {
 		const userId = req.user?._id;
 		const defaultStartDate = new Date("1970-01-01").toISOString();
@@ -95,7 +96,7 @@ export async function getAllTickets(req: any, res: Response) {
 			status: req.query.status ? [req.query.status] : ["pending", "open", "closed"]
 		}
 		
-		const tickets: any = await TicketService.getAllTickets(userId, query);
+		const tickets: any = await TicketService.getUserTickets(userId, query);
 
 		if (!tickets.length) {
 			return http_responder.errorResponse(res, "no tickets found", httpCodes.NOT_FOUND);
@@ -112,14 +113,14 @@ export async function getAllTickets(req: any, res: Response) {
 }
 
 /**
-  * updateTicket
-  * @desc A user should be able to update(comment) a ticket created by the user
+  * userCommentOnTicket
+  * @desc A user should be able to comment a ticket created by the user
   * Route: PUT: '/api/v1/tickets/:id'
   * @param {Object} req request object
   * @param {Object} res response object
   * @returns {void|Object} object
   */
-export async function updateTicket(req: IRequestUser, res: Response) {
+export async function userCommentOnTicket(req: IRequestUser, res: Response) {
 	try {
 		const userId = req.user?._id;
 		const ticketId = req.params.id;
@@ -145,12 +146,173 @@ export async function updateTicket(req: IRequestUser, res: Response) {
 		comments.push({
 			comment,
 			commenter: userId,
-		})
+			onModel: "user"
+		});
+		const meta = ticket.meta;
+		meta.comments = comments;
 
-		const team = await TicketService.updateTicketcomment(ticketId, comments);
+		const updatedTicket = await TicketService.updateTicket(ticket._id, { meta });
 
 		const message = "Ticket updated successfully";
-		return http_responder.successResponse(res, { team }, message, httpCodes.OK);
+		return http_responder.successResponse(res, { ticket: updatedTicket }, message, httpCodes.OK);
+	} catch (error) {
+		logger.error(JSON.stringify(error));
+		return http_responder.errorResponse(
+			res,
+			error.message,
+			httpCodes.INTERNAL_SERVER_ERROR
+		);
+	}
+}
+
+/**
+  * updateTicket
+  * @desc An admin should be able to update(comment or status) a ticket created by the user
+  * Route: PUT: '/api/v1/tickets/:id'
+  * @param {Object} req request object
+  * @param {Object} res response object
+  * @returns {void|Object} object
+  */
+export async function updateTicket(req: IRequestAdmin, res: Response) {
+	try {
+		const userId = req.user?._id;
+		const ticketId = req.params.id;
+		const { comment, status } = req.body;
+
+		const errors = await Utils.validateRequest(req.body, UpdateTicketCommentSchema);
+		if (errors) {
+			return http_responder.errorResponse(res, errors, httpCodes.BAD_REQUEST);
+		}
+
+		const ticket = await TicketService.findTicketById(ticketId);
+		if (!ticket) {
+			const errMessage = "ticket does not exist";
+			return http_responder.errorResponse(res, errMessage, httpCodes.NOT_FOUND);
+		}
+
+		const updateObject: any = {}
+
+		if (comment) {
+			const comments = [...ticket.meta.comments];
+			comments.push({
+				comment,
+				commenter: userId,
+				onModel: "admin"
+			});
+			const meta = ticket.meta;
+			meta.comments = comments;
+			updateObject.meta = meta;
+			if (!ticket.isOpenForComment) {
+				updateObject.isOpenForComment = true;
+			}
+		}
+
+		if (status) {
+			updateObject.status = status;
+		}
+
+		if (status == "closed") {
+			updateObject.treatedById = userId;
+			updateObject.treatedDate = new Date;
+		}
+
+		const updatedTicket = await TicketService.updateTicket(ticket._id, updateObject);
+
+		const message = "Ticket updated successfully";
+		return http_responder.successResponse(res, { ticket: updatedTicket }, message, httpCodes.OK);
+	} catch (error) {
+		logger.error(JSON.stringify(error));
+		return http_responder.errorResponse(
+			res,
+			error.message,
+			httpCodes.INTERNAL_SERVER_ERROR
+		);
+	}
+}
+
+/**
+  * getAllTickets
+  * @desc An admin should get all the tickets created by users
+  * Route: GET: '/api/v1/tickets/history'
+  * @param {Object} req request object
+  * @param {Object} res response object
+  * @returns {void|Object} object
+  */
+export async function getAllTickets(req: any, res: Response) {
+	try {
+		const defaultStartDate = new Date("1970-01-01").toISOString();
+		const defaultEndDate = new Date().toISOString();
+		const query = {
+			startDate: req.query.startDate ? new Date(req.query.startDate).toISOString() : defaultStartDate,
+			endDate: req.query.endDate ? new Date(req.query.endDate).toISOString() : defaultEndDate,
+			status: req.query.status ? [req.query.status] : ["pending", "open", "closed"]
+		}
+
+		const tickets: any = await TicketService.getAllTickets(query);
+
+		if (!tickets.length) {
+			return http_responder.errorResponse(res, "no tickets found", httpCodes.NOT_FOUND);
+		}
+		return http_responder.successResponse(res, { tickets }, "tickets found", httpCodes.OK);
+	} catch (error) {
+		logger.error(JSON.stringify(error));
+		return http_responder.errorResponse(
+			res,
+			error.message,
+			httpCodes.INTERNAL_SERVER_ERROR
+		);
+	}
+}
+
+/**
+  * getTicketsReport
+  * @desc An admin should be able to download a CSV file containing report of all closed ticket in the last one month
+  * Route: GET: '/api/v1/tickets/report'
+  * @param {Object} req request object
+  * @param {Object} res response object
+  * @returns {void|Object} object
+  */
+export async function getTicketsReport(req: any, res: Response) {
+	try {
+
+		const tickets: any = await TicketService.getClosedTickets();
+		if (!tickets.length) {
+			return http_responder.errorResponse(res, "no reports", NOT_FOUND);
+		}
+		let finalArray = [];
+		for (let ticket of tickets) {
+			const body = {
+				id: ticket.ticketId,
+				customer: ticket.userId.name,
+				email: ticket.userId.email,
+				subject: ticket.subject,
+				content: ticket.content,
+				requestDate: ticket.createdAt,
+				agent: ticket.treatedById.name,
+				closedDate: ticket.treatedDate
+			};
+			finalArray.push(body);
+		}
+		const result = finalArray;
+		console.log(result);
+		const data = JSON.parse(JSON.stringify(result));
+		console.log(data, "data");
+		const csvFields = [
+			"id",
+			"customer",
+			"email",
+			"subject",
+			"content",
+			"requestDate",
+			"agent",
+			"closedDate",
+		];
+		const opts = { csvFields };
+		const csvData = parse(data, opts);
+
+		//send to csv
+		return http_responder.downloadResponse(res, csvData, "report.csv");
+		
 	} catch (error) {
 		logger.error(JSON.stringify(error));
 		return http_responder.errorResponse(

@@ -1,5 +1,6 @@
 import { TicketModel } from "../models/ticket";
 import { ITicket } from "../utils/types/custom";
+import moment from "moment";
 
 const TicketService = {
 	async createTicket(data: ITicket) {
@@ -18,15 +19,18 @@ const TicketService = {
 			const ticket = await TicketModel.findOne({
 				userId,
 				ticketId,
-			});
-
+			}).
+				populate({ path: 'userId', select: 'name email' }).
+				populate({ path: 'treatedById', select: 'name email' }).
+				populate({ path: 'meta.comments.commenter', select: '-password -role -isDeleted' });
+		
 			return ticket;
 		} catch (error) {
 			throw error;
 		}
 	},
 
-	async getAllTickets(userId: any, query: any) {
+	async getUserTickets(userId: any, query: any) {
 		try {
 			const tickets = await TicketModel.find({
 				userId,
@@ -37,8 +41,59 @@ const TicketService = {
 					$gte: new Date(query.startDate),
 					$lt: new Date(query.endDate),
 				},
-			});
+			}).
+				populate({ path: 'userId', select: 'name email' }).
+				populate({ path: 'treatedById', select: 'name email' }).
+				populate({ path: 'meta.comments.commenter', select: '-password -role -isDeleted' }).
+				sort({ "createdAt": -1 });
 
+			return tickets;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	async getAllTickets(query: any) {
+		try {
+			const tickets = await TicketModel.find({
+				status: {
+					$in: query.status,
+				},
+				createdAt: {
+					$gte: new Date(query.startDate),
+					$lt: new Date(query.endDate),
+				},
+			}).
+				populate({ path: 'userId', select: 'name email' }).
+				populate({ path: 'treatedById', select: 'name email' }).
+				populate({ path: 'meta.comments.commenter', select: '-password -role -isDeleted' }).
+				sort({ "createdAt": -1 });
+
+			return tickets;
+		} catch (error) {
+			throw error;
+		}
+	},
+
+	async getClosedTickets() {
+		try {
+			const startDate: any = moment().subtract(1, "month");
+			const endDate = new Date().toISOString();
+			const tickets = await TicketModel.find({
+				status: "closed",
+				treatedDate: {
+					$gte: new Date(startDate),
+					$lt: new Date(endDate),
+				},
+			})
+				.populate({ path: "userId", select: "name email" })
+				.populate({ path: "treatedById", select: "name email" })
+				.populate({
+					path: "meta.comments.commenter",
+					select: "-password -role -isDeleted",
+				})
+				.sort({ createdAt: -1 });
+			
 			return tickets;
 		} catch (error) {
 			throw error;
@@ -49,19 +104,24 @@ const TicketService = {
 		try {
 			const ticket = await TicketModel.findOne({
 				ticketId,
-			});
-
+			}).
+				populate({ path: 'userId', select: 'name email' });
+			
 			return ticket;
 		} catch (error) {
 			throw error;
 		}
 	},
 
-	async updateTicketcomment(ticketId: string, comment: any) {
+	async updateTicket(ticketId: string, updateObject: any = {}) {
 		try {
-			const ticket: any = await this.findTicketById(ticketId);
-			
-			return ticket;
+			const ticketUpdate = await TicketModel.findByIdAndUpdate(
+				ticketId,
+				updateObject,
+				{ new: true }).
+				populate({ path: 'userId', select: 'name email' }).
+				populate({ path: 'meta.comments.commenter', select: '-password -role -isDeleted' })
+			return ticketUpdate;
 		} catch (error) {
 			throw error;
 		}

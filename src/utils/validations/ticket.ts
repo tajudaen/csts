@@ -6,5 +6,6 @@ export const CreateTicketSchema = Joi.object({
 });
 
 export const UpdateTicketCommentSchema = Joi.object({
-    comment: Joi.string().required().min(1)
+    comment: Joi.string().min(1),
+    status: Joi.string(),
 });

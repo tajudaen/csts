@@ -7,11 +7,13 @@ export interface TicketDoc extends Document {
 	content: string;
 	userId: any;
 	status: string;
+	treatedById?: string;
 	isOpenForComment: boolean;
 	meta: any;
 	isDeleted: boolean;
 	createdAt: Date;
 	updatedAt: Date;
+	treatedDate?: Date;
 }
 
 const ticketSchema = new Schema(
@@ -33,7 +35,7 @@ const ticketSchema = new Schema(
 		},
 		userId: {
 			type: Schema.Types.ObjectId,
-			ref: "users",
+			ref: 'user',
 			required: true,
 		},
 		status: {
@@ -50,6 +52,13 @@ const ticketSchema = new Schema(
 					},
 					commenter: {
 						type: Schema.Types.ObjectId,
+						required: true,
+						refPath: 'meta.comments.onModel'
+					},
+					onModel: {
+						type: String,
+						required: true,
+						enum: ['user', 'admin']
 					},
 					createdAt: {
 						type: Date,
@@ -57,6 +66,14 @@ const ticketSchema = new Schema(
 					},
 				},
 			],
+		},
+		treatedById: {
+			type: Schema.Types.ObjectId,
+			ref: 'admin',
+			required: true,
+		},
+		treatedDate: {
+			type: Date
 		},
 		isOpenForComment: {
 			type: Boolean,
