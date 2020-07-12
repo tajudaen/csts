@@ -21,7 +21,6 @@ export const cachedUserTickets = (req: any, res: Response, next: NextFunction) =
         redisClient.get(`${user}:${status}`, (err, tickets) => {
             if (err) throw err;
             if (tickets) {
-                console.log("FROM CACHE USER");
                 const { limit, page } = req.query;
                 const dataArray = JSON.parse(tickets);
                 const result = Utils.paginator(dataArray, limit, page);
