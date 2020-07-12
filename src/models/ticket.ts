@@ -70,7 +70,6 @@ const ticketSchema = new Schema(
 		treatedById: {
 			type: Schema.Types.ObjectId,
 			ref: 'admin',
-			required: true,
 		},
 		treatedDate: {
 			type: Date

@@ -18,13 +18,13 @@ export const cachedUserTickets = (req: any, res: Response, next: NextFunction) =
     try {
         const user = req.user.id;
         const status = (req.query.status) ? req.query.status : "all";
-        redisClient.get(`${user}:${status}`, (err, tickets) => {
+        redisClient.get(`${user}:${status}`, async (err, tickets) => {
             if (err) throw err;
             if (tickets) {
                 const { limit, page } = req.query;
                 const dataArray = JSON.parse(tickets);
-                const result = Utils.paginator(dataArray, limit, page);
-
+                const result = await Utils.paginator(dataArray, parseInt(limit), parseInt(page));
+                
                 return http_responder.successResponse(res, result, "tickets found", httpCodes.OK);
             }
 
@@ -46,12 +46,12 @@ export const cachedUserTickets = (req: any, res: Response, next: NextFunction) =
   */
 export const cachedTicket = async (req: any, res: Response, next: NextFunction) => {
     try {
-        const ticket = req.params.id
-        redisClient.get(`${ticket}`, (err, ticket) => {
+        const ticketId = req.params.id
+        redisClient.get(`${ticketId}`, (err, data) => {
             if (err) throw err;
-            if (ticket) {
+            if (data) {
                 console.log("FROM CACHE ticket");
-
+                const ticket = JSON.parse(data);
                 return http_responder.successResponse(res, { ticket }, "ticket found", httpCodes.OK);
             }
 
@@ -74,13 +74,13 @@ export const cachedTicket = async (req: any, res: Response, next: NextFunction) 
 export const cachedTickets = async (req: any, res: Response, next: NextFunction) => {
     try {
         const status = (req.query.status) ? req.query.status : "all";
-        redisClient.get(`tickets:${status}`, (err, tickets) => {
+        redisClient.get(`tickets:${status}`, async (err, tickets) => {
             if (err) throw err;
             if (tickets) {
                 console.log("FROM CACHE");
                 const { limit, page } = req.query;
                 const dataArray = JSON.parse(tickets);
-                const result = Utils.paginator(dataArray, limit, page);
+                const result = await Utils.paginator(dataArray, parseInt(limit), parseInt(page));
 
                 return http_responder.successResponse(res, result, "tickets found", httpCodes.OK);
             }

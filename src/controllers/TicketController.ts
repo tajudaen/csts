@@ -110,8 +110,9 @@ export async function getUserTickets(req: any, res: Response) {
 			return http_responder.errorResponse(res, "no tickets found", httpCodes.NOT_FOUND);
 		}
 		const status = req.query.status ? req.query.status : "all";
+		
 		redisClient.setex(`${userId}:${status}`, 3600, JSON.stringify(tickets));
-		const result = Utils.paginator(tickets, limit, page);
+		const result = await Utils.paginator(tickets, limit, page);
         
 
 		return http_responder.successResponse(res, result, "tickets found", httpCodes.OK);
@@ -281,7 +282,7 @@ export async function getAllTickets(req: any, res: Response) {
         const status = req.query.status ? req.query.status : "all";
 		redisClient.setex(`tickets:${status}`, 3600, JSON.stringify(tickets));
 
-		const result = Utils.paginator(tickets, limit, page);
+		const result = await Utils.paginator(tickets, limit, page);
 
 		return http_responder.successResponse(res, result, "tickets found", httpCodes.OK);
 	} catch (error) {
@@ -324,9 +325,9 @@ export async function getTicketsReport(req: any, res: Response) {
 			finalArray.push(body);
 		}
 		const result = finalArray;
-		console.log(result);
+		
 		const data = JSON.parse(JSON.stringify(result));
-		console.log(data, "data");
+		
 		const csvFields = [
 			"id",
 			"customer",
@@ -340,7 +341,7 @@ export async function getTicketsReport(req: any, res: Response) {
 		const opts = { csvFields };
 		const csvData = parse(data, opts);
 
-		//send to csv
+		//send as csv
 		return http_responder.downloadResponse(res, csvData, "report.csv");
 		
 	} catch (error) {

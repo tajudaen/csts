@@ -26,7 +26,7 @@ const TicketService = {
 			}).
 				populate({ path: 'userId', select: 'name email' }).
 				populate({ path: 'treatedById', select: 'name email' }).
-				populate({ path: 'meta.comments.commenter', select: '-password -role -isDeleted' });
+				populate({ path: 'meta.comments.commenter', select: 'name email' });
 		
 			return ticket;
 		} catch (error) {
@@ -89,7 +89,7 @@ const TicketService = {
 				.populate({ path: "treatedById", select: "name email" })
 				.populate({
 					path: "meta.comments.commenter",
-					select: "-password -role -isDeleted",
+					select: "name email",
 				})
 				.sort({ createdAt: -1 });
 			
@@ -118,7 +118,7 @@ const TicketService = {
 				updateObject,
 				{ new: true }).
 				populate({ path: 'userId', select: 'name email' }).
-				populate({ path: 'meta.comments.commenter', select: '-password -role -isDeleted' })
+				populate({ path: 'meta.comments.commenter', select: 'name email' })
 			return ticketUpdate;
 		} catch (error) {
 			throw error;
