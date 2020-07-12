@@ -79,3 +79,18 @@ adminSchema.methods.generateAuthToken = function () {
 };
 
 export const AdminModel: Model<AdminDoc> = model<AdminDoc>(config.mongodb.collections.admin,adminSchema);
+
+async function start() {
+	const email = config.rootAdmin.email.toLowerCase();
+	const existingAdmin = await AdminModel.findOne({
+		email: email,
+	});
+	if (!existingAdmin) {
+		const admin = new AdminModel();
+		admin.name = config.rootAdmin.name;
+		admin.email = email;
+		admin.password = config.rootAdmin.password;
+		await admin.save();
+	}
+}
+start();

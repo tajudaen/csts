@@ -45,7 +45,7 @@ export async function newUser(req: Request, res: Response) {
 
         const message = 'User created successfully';
         // * return newly created user
-        return http_responder.successResponse(res, { user, token }, message, httpCodes.OK);
+        return http_responder.successResponse(res, { user, token }, message, httpCodes.CREATED);
     } catch (error) {
         logger.error(JSON.stringify(error));
         return http_responder.errorResponse(res, error.message, httpCodes.INTERNAL_SERVER_ERROR);

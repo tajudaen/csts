@@ -12,7 +12,8 @@ interface IEnv {
 	environment: string;
 	jwt: IJWT;
 	salt: number;
-	redisURL: string;
+	redis: any;
+	rootAdmin: any;
 }
 
 interface IMongodb {
@@ -57,7 +58,15 @@ const config: IEnv = {
 		},
 	},
 	salt: Number(process.env.SALT_ROUND)!,
-	redisURL: process.env.REDIS_URL!,
+	redis: {
+		host: process.env.REDIS_HOST!,
+		port: Number(process.env.REDIS_PORT)!
+	},
+	rootAdmin: {
+		name: process.env.ROOT_NAME,
+		email: process.env.ROOT_EMAIL,
+		password: process.env.ROOT_PASSWORD
+	}
 };
 
 export { config };

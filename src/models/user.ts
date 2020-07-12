@@ -77,17 +77,3 @@ userSchema.methods.generateAuthToken = function () {
 
 
 export const UserModel: Model<UserDoc> = model<UserDoc>(config.mongodb.collections.user, userSchema);
-
-async function start() {
-	const existingUser = await UserModel.findOne({
-		email: "jane@doe.com",
-	});
-	if (!existingUser) {
-		const user = new UserModel();
-		user.name = "Jane Doe";
-		user.email = "jane@doe.com";
-		user.password = "password";
-		await user.save();
-	}
-}
-start();

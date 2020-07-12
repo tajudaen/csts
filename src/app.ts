@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import { NOT_FOUND, INTERNAL_SERVER_ERROR } from "http-status-codes";
 import { logger } from './config/logger';
 import { connectDB } from './config/db';
+import redisClient from './config/redis';
 import { http_responder } from './utils/http_response';
 import BaseRouter from './routes';
 
