@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import { authToken, authUser, authAdmin } from "../middlewares/Auth";
 import TicketRouter from "./Ticket";
 import { loginUser } from "../controllers/AuthController";
+import { newUser } from "../controllers/UserController";
 import { newTicket } from "../controllers/TicketController";
 import AdminRouter from "./Admin";
 import {http_responder} from "../utils/http_response";
@@ -17,6 +18,7 @@ router.use("/health", (req: Request, res: Response) => {
 // Add sub-routes
 
 router.post("/login", loginUser);
+router.post("/register", newUser);
 router.post("/ticket",authToken, authUser, newTicket)
 router.use("/tickets", TicketRouter);
 router.use("/admin", AdminRouter);

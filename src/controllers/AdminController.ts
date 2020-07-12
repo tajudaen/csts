@@ -6,7 +6,6 @@ import { logger } from "../config/logger";
 import { http_responder } from '../utils/http_response';
 import { CreateAdminSchema } from "../utils/validations/admin";
 import Utils from "../utils/utils";
-import { uuid } from 'uuidv4';
 
  /**
    * newAdmin
@@ -35,7 +34,6 @@ export async function newAdmin(req: IRequestAdmin, res: Response) {
 			name: name.toLowerCase(),
 			email: email.toLowerCase(),
 			role: role.toLowerCase(),
-			adminId: uuid(),
 			password: password
 		};
 

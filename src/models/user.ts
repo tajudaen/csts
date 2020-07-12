@@ -2,7 +2,6 @@ import { Document, Model, model, Schema } from "mongoose";
 import { config } from "../config/config";
 import jwt from "jsonwebtoken";
 import utils from "../utils/utils";
-import { uuid } from "uuidv4";
 
 
 export interface UserDoc extends Document {
@@ -11,6 +10,7 @@ export interface UserDoc extends Document {
 	email: string;
 	password: string;
 	isDeleted: boolean;
+	generateAuthToken: Function;
 }
 
 const userSchema = new Schema(

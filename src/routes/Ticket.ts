@@ -7,7 +7,7 @@ const router = Router();
 router.post("/", authToken, authUser, TicketController.newTicket);
 router.get("/history", authToken, authUser, TicketController.getUserTickets);
 router.get("/", authToken, authAdmin, TicketController.getAllTickets);
-router.get("/report", TicketController.getTicketsReport);
+router.get("/report", authToken, authAdmin, TicketController.getTicketsReport);
 router.get("/:id", authToken, authUser, TicketController.getTicket);
 router.put("/:id", authToken, authUser, TicketController.userCommentOnTicket);
 

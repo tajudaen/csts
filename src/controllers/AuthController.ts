@@ -39,7 +39,7 @@ export async function loginAdmin(req: IRequestAdmin, res: Response) {
             const errMessage = "Invalid login credentials";
             return http_responder.errorResponse(res, errMessage, httpCodes.UNAUTHORIZED);
         }
-        const token = admin.generateAuthToken(admin, config.jwt.expires);
+        const token = admin.generateAuthToken();
 
         const message = 'User login successful';
         return http_responder.successResponse(res, { user: admin, token }, message, httpCodes.OK);
@@ -80,7 +80,7 @@ export async function loginUser(req: IRequestUser, res: Response) {
             const errMessage = "Invalid login credentials";
             return http_responder.errorResponse(res, errMessage, httpCodes.UNAUTHORIZED);
         }
-        const token = user.generateAuthToken(user, config.jwt.expires);
+        const token = user.generateAuthToken();
 
         const message = 'User login successful';
         return http_responder.successResponse(res, { user, token }, message, httpCodes.OK);

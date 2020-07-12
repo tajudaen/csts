@@ -42,9 +42,6 @@ const TicketService = {
 					$lt: new Date(query.endDate),
 				},
 			}).
-				populate({ path: 'userId', select: 'name email' }).
-				populate({ path: 'treatedById', select: 'name email' }).
-				populate({ path: 'meta.comments.commenter', select: '-password -role -isDeleted' }).
 				sort({ "createdAt": -1 });
 
 			return tickets;
@@ -65,8 +62,6 @@ const TicketService = {
 				},
 			}).
 				populate({ path: 'userId', select: 'name email' }).
-				populate({ path: 'treatedById', select: 'name email' }).
-				populate({ path: 'meta.comments.commenter', select: '-password -role -isDeleted' }).
 				sort({ "createdAt": -1 });
 
 			return tickets;

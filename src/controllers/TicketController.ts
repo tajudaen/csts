@@ -90,6 +90,7 @@ export async function getUserTickets(req: any, res: Response) {
 		const userId = req.user?._id;
 		const defaultStartDate = new Date("1970-01-01").toISOString();
 		const defaultEndDate = new Date().toISOString();
+		const { limit, page } = req.query;
 		const query = {
 			startDate: req.query.startDate ? new Date(req.query.startDate).toISOString() : defaultStartDate,
 			endDate: req.query.endDate ? new Date(req.query.endDate).toISOString() : defaultEndDate,
@@ -101,7 +102,9 @@ export async function getUserTickets(req: any, res: Response) {
 		if (!tickets.length) {
 			return http_responder.errorResponse(res, "no tickets found", httpCodes.NOT_FOUND);
 		}
-		return http_responder.successResponse(res, { tickets }, "tickets found", httpCodes.OK);
+		const result = Utils.paginator(tickets, limit, page);
+
+		return http_responder.successResponse(res, result, "tickets found", httpCodes.OK);
 	} catch (error) {
 		logger.error(JSON.stringify(error));
 		return http_responder.errorResponse(
@@ -242,6 +245,7 @@ export async function getAllTickets(req: any, res: Response) {
 	try {
 		const defaultStartDate = new Date("1970-01-01").toISOString();
 		const defaultEndDate = new Date().toISOString();
+		const { limit, page } = req.query;
 		const query = {
 			startDate: req.query.startDate ? new Date(req.query.startDate).toISOString() : defaultStartDate,
 			endDate: req.query.endDate ? new Date(req.query.endDate).toISOString() : defaultEndDate,
@@ -253,7 +257,9 @@ export async function getAllTickets(req: any, res: Response) {
 		if (!tickets.length) {
 			return http_responder.errorResponse(res, "no tickets found", httpCodes.NOT_FOUND);
 		}
-		return http_responder.successResponse(res, { tickets }, "tickets found", httpCodes.OK);
+		const result = Utils.paginator(tickets, limit, page);
+
+		return http_responder.successResponse(res, result, "tickets found", httpCodes.OK);
 	} catch (error) {
 		logger.error(JSON.stringify(error));
 		return http_responder.errorResponse(

@@ -20,11 +20,15 @@ export interface ITicket {
 }
 
 export interface IAdmin {
-	adminId: string;
 	name: string;
 	email: string;
 	password: string;
 	role?: string;
+}
+export interface IUser {
+	name: string;
+	email: string;
+	password: string;
 }
 
 export interface ICategory {
