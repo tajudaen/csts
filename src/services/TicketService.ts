@@ -1,3 +1,7 @@
+/**
+ * TicketService object.
+ * handles business logic relating to TicketModel
+ */
 import { TicketModel } from "../models/ticket";
 import { ITicket } from "../utils/types/custom";
 import moment from "moment";
@@ -99,8 +103,7 @@ const TicketService = {
 		try {
 			const ticket = await TicketModel.findOne({
 				ticketId,
-			}).
-				populate({ path: 'userId', select: 'name email' });
+			});
 			
 			return ticket;
 		} catch (error) {

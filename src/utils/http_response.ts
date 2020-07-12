@@ -1,3 +1,8 @@
+/**
+ * http_responder object.
+ * to manage reponse for all incoming request
+ * 
+ */
 import { Response } from "express";
 import { OK , INTERNAL_SERVER_ERROR } from "http-status-codes";
 

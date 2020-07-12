@@ -1,3 +1,7 @@
+/**
+ * Utils object.
+ * contains various helper function
+ */
 import { config } from "../config/config";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";

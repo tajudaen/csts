@@ -8,6 +8,7 @@ import { CreateTicketSchema, UpdateTicketCommentSchema } from "../utils/validati
 import Utils from "../utils/utils";
 import { uuid } from 'uuidv4';
 const { parse } = require('json2csv');
+import redisClient from "../config/redis";
 
 /**
   * newTicket
@@ -36,6 +37,9 @@ export async function newTicket(req: IRequestUser, res: Response) {
 
 		// save ticket
 		const ticket = await TicketService.createTicket(ticketObject);
+    	redisClient.del(`${userId}:all`);
+    	redisClient.del(`${userId}:pending`);
+    	redisClient.del("tickets:all");
 
 		return http_responder.successResponse(res, { ticket }, "ticket created successfully", httpCodes.CREATED);
 	} catch (error) {
@@ -66,6 +70,9 @@ export async function getTicket(req: IRequestUser, res: Response) {
 		if (!ticket) {
 			return http_responder.errorResponse(res, "ticket not found", httpCodes.NOT_FOUND);
 		}
+
+        redisClient.setex(`${ticket.ticketId}`, 3600, JSON.stringify(ticket));
+
 		return http_responder.successResponse(res, { ticket }, "ticket found", httpCodes.OK);
 	} catch (error) {
 		logger.error(JSON.stringify(error));
@@ -102,7 +109,10 @@ export async function getUserTickets(req: any, res: Response) {
 		if (!tickets.length) {
 			return http_responder.errorResponse(res, "no tickets found", httpCodes.NOT_FOUND);
 		}
+		const status = req.query.status ? req.query.status : "all";
+		redisClient.setex(`${userId}:${status}`, 3600, JSON.stringify(tickets));
 		const result = Utils.paginator(tickets, limit, page);
+        
 
 		return http_responder.successResponse(res, result, "tickets found", httpCodes.OK);
 	} catch (error) {
@@ -155,6 +165,11 @@ export async function userCommentOnTicket(req: IRequestUser, res: Response) {
 		meta.comments = comments;
 
 		const updatedTicket = await TicketService.updateTicket(ticket._id, { meta });
+		redisClient.del(`${ticketId}`);
+		redisClient.del(`${userId}:all`);
+		redisClient.del(`${userId}:open`);
+		redisClient.del(`${userId}:closed`);
+		redisClient.del("tickets:all");
 
 		const message = "Ticket updated successfully";
 		return http_responder.successResponse(res, { ticket: updatedTicket }, message, httpCodes.OK);
@@ -221,6 +236,12 @@ export async function updateTicket(req: IRequestAdmin, res: Response) {
 
 		const updatedTicket = await TicketService.updateTicket(ticket._id, updateObject);
 
+		redisClient.del(`${ticketId}`);
+		redisClient.del(`${ticket.userId}:all`);
+		redisClient.del(`${ticket.userId}:open`);
+		redisClient.del(`${ticket.userId}:closed`);
+		redisClient.del("tickets:all");
+
 		const message = "Ticket updated successfully";
 		return http_responder.successResponse(res, { ticket: updatedTicket }, message, httpCodes.OK);
 	} catch (error) {
@@ -257,6 +278,9 @@ export async function getAllTickets(req: any, res: Response) {
 		if (!tickets.length) {
 			return http_responder.errorResponse(res, "no tickets found", httpCodes.NOT_FOUND);
 		}
+        const status = req.query.status ? req.query.status : "all";
+		redisClient.setex(`tickets:${status}`, 3600, JSON.stringify(tickets));
+
 		const result = Utils.paginator(tickets, limit, page);
 
 		return http_responder.successResponse(res, result, "tickets found", httpCodes.OK);

@@ -1,3 +1,7 @@
+/**
+ * UserService object.
+ * handles business logic relating to UserModel
+ */
 import { UserModel } from "../models/user";
 
 const UserService = {

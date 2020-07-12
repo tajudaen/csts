@@ -1,3 +1,7 @@
+/**
+ * load in environmental variables using dotenv
+ * declare environmental variable in config object
+ */
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -8,6 +12,7 @@ interface IEnv {
 	environment: string;
 	jwt: IJWT;
 	salt: number;
+	redisURL: string;
 }
 
 interface IMongodb {
@@ -52,6 +57,7 @@ const config: IEnv = {
 		},
 	},
 	salt: Number(process.env.SALT_ROUND)!,
+	redisURL: process.env.REDIS_URL!,
 };
 
 export { config };

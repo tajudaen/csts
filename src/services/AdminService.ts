@@ -1,3 +1,7 @@
+/**
+ * AdminService object.
+ * handles business logic relating to AdminModel
+ */
 import { AdminModel } from "../models/admin";
 import { IAdmin } from "../utils/types/custom";
 

@@ -78,8 +78,8 @@ export const adminAccess = async (req: any, res: Response, next: NextFunction) =
 };
 
 /**
-  * authAdmin
-  * @desc A middleware to authenticate admin users
+  * authUser
+  * @desc A middleware to authenticate users
   * @param {Object} req request any
   * @param {Object} res response object
   * @param {Function} next nextFunction middleware
