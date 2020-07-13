@@ -8,6 +8,7 @@ const router = Router();
 
 router.post("/", authToken, authAdmin, adminAccess, AdminController.newAdmin);
 router.post("/login", AuthController.loginAdmin);
+router.get("/tickets/:id", authToken, authAdmin, TicketController.findTicket);
 router.put("/tickets/:id", authToken, authAdmin, TicketController.updateTicket);
 
 export default router;

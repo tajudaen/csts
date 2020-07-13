@@ -85,6 +85,38 @@ export async function getTicket(req: IRequestUser, res: Response) {
 }
 
 /**
+  * findTicket
+  * @desc A user get the details of a ticket with given id
+  * Route: GET: '/api/v1/admin/ticket/:id'
+  * @param {Object} req request object
+  * @param {Object} res response object
+  * @returns {void|Object} object
+  */
+export async function findTicket(req: IRequestUser, res: Response) {
+	try {
+		const ticketId = req.params.id;
+		const userId = req.user?._id;
+		
+		const ticket: any = await TicketService.findTicketAdmin(ticketId);
+
+		if (!ticket) {
+			return http_responder.errorResponse(res, "ticket not found", httpCodes.NOT_FOUND);
+		}
+
+        redisClient.setex(`${ticket.ticketId}`, 3600, JSON.stringify(ticket));
+
+		return http_responder.successResponse(res, { ticket }, "ticket found", httpCodes.OK);
+	} catch (error) {
+		logger.error(JSON.stringify(error));
+		return http_responder.errorResponse(
+			res,
+			error.message,
+			httpCodes.INTERNAL_SERVER_ERROR
+		);
+	}
+}
+
+/**
   * getUserTickets
   * @desc A user should get all the tickets created by the user
   * Route: GET: '/api/v1/tickets/history'

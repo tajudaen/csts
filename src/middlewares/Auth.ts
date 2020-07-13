@@ -15,7 +15,7 @@ import UserService from "../services/UserService";
    */
 export const authToken = (req: any, res: Response, next: NextFunction) => {
 	const bearerToken = req.headers["authorization"];
-    if (!bearerToken) {
+	if (!bearerToken) {
 		const errMessage = "Access denied. No token provided.";
 
 		return http_responder.errorResponse(res, errMessage, httpCodes.UNAUTHORIZED);

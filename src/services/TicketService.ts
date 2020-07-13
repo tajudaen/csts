@@ -34,6 +34,21 @@ const TicketService = {
 		}
 	},
 
+	async findTicketAdmin(ticketId: string) {
+		try {
+			const ticket = await TicketModel.findOne({
+				ticketId,
+			}).
+				populate({ path: 'userId', select: 'name email' }).
+				populate({ path: 'treatedById', select: 'name email' }).
+				populate({ path: 'meta.comments.commenter', select: 'name email' });
+		
+			return ticket;
+		} catch (error) {
+			throw error;
+		}
+	},
+
 	async getUserTickets(userId: any, query: any) {
 		try {
 			const tickets = await TicketModel.find({

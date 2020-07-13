@@ -50,7 +50,6 @@ export const cachedTicket = async (req: any, res: Response, next: NextFunction) 
         redisClient.get(`${ticketId}`, (err, data) => {
             if (err) throw err;
             if (data) {
-                console.log("FROM CACHE ticket");
                 const ticket = JSON.parse(data);
                 return http_responder.successResponse(res, { ticket }, "ticket found", httpCodes.OK);
             }
@@ -77,7 +76,6 @@ export const cachedTickets = async (req: any, res: Response, next: NextFunction)
         redisClient.get(`tickets:${status}`, async (err, tickets) => {
             if (err) throw err;
             if (tickets) {
-                console.log("FROM CACHE");
                 const { limit, page } = req.query;
                 const dataArray = JSON.parse(tickets);
                 const result = await Utils.paginator(dataArray, parseInt(limit), parseInt(page));
